@@ -1,0 +1,33 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/SceneComponent.h"
+#include "CheckPointComponent.generated.h"
+
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
+class HOSPITAL_MPIA_API UCheckPointComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+private:
+	// Le mesh du checkpoint
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* CheckpointMesh;
+
+public:	
+	// Sets default values for this component's properties
+	UCheckPointComponent();
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+		
+};
