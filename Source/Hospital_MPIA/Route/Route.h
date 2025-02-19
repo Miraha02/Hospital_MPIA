@@ -21,7 +21,5 @@ class HOSPITAL_MPIA_API IRoute
 {
 	GENERATED_BODY()
 
-	virtual TArray<UCheckPointComponent*> GetCheckPointComponents() const = 0;
-	virtual TArray<FVector> GetCheckPointLocation() const = 0;
 public:
 };

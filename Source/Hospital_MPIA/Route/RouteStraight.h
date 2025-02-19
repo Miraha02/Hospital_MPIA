@@ -13,9 +13,6 @@ class HOSPITAL_MPIA_API ARouteStraight : public AActor, public IRoute
 	GENERATED_BODY()
 
 private:
-
-	UPROPERTY(EditAnywhere, Category = "Checkpoint", Meta = (AllowPrivateAccess = "true"))
-	TArray<UCheckPointComponent*> CheckpointComponents;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -28,11 +25,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-
-	// Hérité via IRoute
-	TArray<UCheckPointComponent*> GetCheckPointComponents() const override;
-
-	TArray<FVector> GetCheckPointLocation() const override;
 
 };

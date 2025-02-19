@@ -22,13 +22,3 @@ void ARouteStraight::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-TArray<UCheckPointComponent*> ARouteStraight::GetCheckPointComponents() const
-{
-	return CheckpointComponents;
-}
-
-TArray<FVector> ARouteStraight::GetCheckPointLocation() const
-{
-	return TArray<FVector>();
-}

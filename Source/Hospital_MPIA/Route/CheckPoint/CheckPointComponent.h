@@ -8,14 +8,11 @@
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
-class HOSPITAL_MPIA_API UCheckPointComponent : public UActorComponent
+class HOSPITAL_MPIA_API UCheckPointComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 private:
-	// Le mesh du checkpoint
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* CheckpointMesh;
 
 public:	
 	// Sets default values for this component's properties
