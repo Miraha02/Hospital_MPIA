@@ -23,8 +23,6 @@ void AMansionCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AddMovementInput(FVector(1.0f, 1.0f, 0.0f),10);
-
 }
 
 // Called to bind functionality to input
