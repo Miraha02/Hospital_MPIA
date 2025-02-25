@@ -16,7 +16,7 @@ class HOSPITAL_MPIA_API AMansionPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
-    // Références aux Inputs
+    // Rï¿½fï¿½rences aux Inputs
     UPROPERTY(EditAnywhere, Category = "Input")
     UInputMappingContext* InputMapping;
 
@@ -31,7 +31,7 @@ public:
 
 protected:
 
-    float Movement = 0.0f;
+    bool IsMoving = false;
 
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
@@ -39,4 +39,7 @@ protected:
     void Move(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
     void Turn(const FInputActionValue& Value);
+
+private:
+	void IsNotMoving();
 };

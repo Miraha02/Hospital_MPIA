@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Hospital_MPIA/Data/HospitalDataAsset.h"
 #include "MansionCharacter.generated.h"
 
 UCLASS()
@@ -11,6 +12,10 @@ class HOSPITAL_MPIA_API AMansionCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditAnywhere, Category = "Characters_Data")
+	UHospitalDataAsset* HospitalDataAsset;
+	
 public:
 	// Sets default values for this character's properties
 	AMansionCharacter();
@@ -26,5 +31,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UHospitalDataAsset* GetHospitalDataAsset() const;
 
 };

@@ -29,6 +29,9 @@ void AMansionCharacter::Tick(float DeltaTime)
 void AMansionCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
+UHospitalDataAsset* AMansionCharacter::GetHospitalDataAsset() const
+{
+	return HospitalDataAsset;
+}
