@@ -36,6 +36,7 @@ public:
 private:
 	ARouteStraight* createActor(UWorld* World, TSubclassOf<ARouteStraight> Actor, FVector SpawnLocation);
 
+	void RotateRoute(ARouteStraight* Actor);
 	bool IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor);
 	bool RouteIsCoherente(ARouteStraight* Neighbor, ARouteStraight* NewActor, int direction);
 };

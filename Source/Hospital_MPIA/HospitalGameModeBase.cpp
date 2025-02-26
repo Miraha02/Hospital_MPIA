@@ -30,6 +30,7 @@ void AHospitalGameModeBase::BeginPlay()
     {
         for (int j = 0; j < MapSize; ++j)
         {
+            UE_LOG(LogTemp, Warning, TEXT("\n\nSpawn route (%d,%d)"),i,j);
             FVector SpawnLocation = FVector(i * sizeX, j * sizeY, 0);
             ARouteStraight* SpawnedActor = nullptr;
             int32 RandomNumber = FMath::RandRange(0, Size - 1);
@@ -40,7 +41,58 @@ void AHospitalGameModeBase::BeginPlay()
 
             while (IsNotCorrect && pieceAttempts < Size)
             {
-                SpawnedActor = createActor(World, RouteTypes[RandomNumber], SpawnLocation);
+                // Spawn les coins de la map
+                if (i==0 && j==0)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[1], SpawnLocation);
+                }
+                else if (i==0 && j==MapSize - 1)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[1], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                }
+                else if (i==MapSize - 1 && j==0)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[1], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                }
+                else if (i==MapSize - 1 && j==MapSize - 1)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[1], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                }
+
+                //Spawn les arretes de la map
+                else if (i==0)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[2], SpawnLocation);
+                }
+                else if (i==MapSize - 1)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[2], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                }
+                else if (j==0)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[2], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                }
+                else if (j==MapSize - 1)
+                {
+                    SpawnedActor = createActor(World, RouteTypes[2], SpawnLocation);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                    RotateRoute(SpawnedActor);
+                }
+                // Spawn un actor à l'intérieur de la map
+                else
+                {
+                    SpawnedActor = createActor(World, RouteTypes[RandomNumber], SpawnLocation);
+                }
                 FVector ActorSize = SpawnedActor->GetComponentsBoundingBox().GetSize();
                 sizeX = ActorSize.X;
                 sizeY = ActorSize.Y;
@@ -53,8 +105,10 @@ void AHospitalGameModeBase::BeginPlay()
                         IsNotCorrect = false;
                         break;
                     }
+                    UE_LOG(LogTemp, Warning, TEXT("Rotation %d"),rotationAttempts+1);
 
-                    SpawnedActor->AddActorLocalRotation(FRotator(0, 90, 0));
+                    RotateRoute(SpawnedActor);
+                    
                     rotationAttempts++;
                 }
 
@@ -76,30 +130,32 @@ void AHospitalGameModeBase::BeginPlay()
 
 bool AHospitalGameModeBase::IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor)
 {
-    if (x > 0 && Grid[x - 1][y] && !RouteIsCoherente(Grid[x - 1][y], NewActor, 0)) return false; // Haut
-    if (x < Grid.Num() - 1 && Grid[x + 1][y] && !RouteIsCoherente(Grid[x + 1][y], NewActor, 2)) return false; // Bas
-    if (y > 0 && Grid[x][y - 1] && !RouteIsCoherente(Grid[x][y - 1], NewActor, 3)) return false; // Gauche
-    if (y < Grid[x].Num() - 1 && Grid[x][y + 1] && !RouteIsCoherente(Grid[x][y + 1], NewActor, 1)) return false; // Droite
+    if (y > 0 && Grid[x][y - 1] && !RouteIsCoherente(NewActor, Grid[x][y - 1], 0)) return false; // Haut (top)
+    if (y < Grid[x].Num() - 1 && Grid[x][y + 1] && !RouteIsCoherente(NewActor, Grid[x][y + 1], 2)) return false; // Bas (down)
+    if (x > 0 && Grid[x - 1][y] && !RouteIsCoherente(NewActor, Grid[x - 1][y], 3)) return false; // Gauche (left)
+    if (x < Grid.Num() - 1 && Grid[x + 1][y] && !RouteIsCoherente(NewActor, Grid[x + 1][y], 1)) return false; // Droite (right)
 
     return true;
 }
+
 
 bool AHospitalGameModeBase::RouteIsCoherente(ARouteStraight* Neighbor, ARouteStraight* NewActor, int direction)
 {
     switch (direction)
     {
     case 0: // Haut
-        return Neighbor->down && NewActor->top;
+        return (Neighbor->down && NewActor->top) || (!Neighbor->down && !NewActor->top);
     case 1: // Droite
-        return Neighbor->left && NewActor->right;
+        return (Neighbor->left && NewActor->right) || (!Neighbor->left && !NewActor->right);
     case 2: // Bas
-        return Neighbor->top && NewActor->down;
+        return (Neighbor->top && NewActor->down) || (!Neighbor->top && !NewActor->down);
     case 3: // Gauche
-        return Neighbor->right && NewActor->left;
+        return (Neighbor->right && NewActor->left) || (!Neighbor->right && !NewActor->left);
     default:
         return false;
     }
 }
+
 
 
 ARouteStraight* AHospitalGameModeBase::createActor(UWorld* World, TSubclassOf<ARouteStraight> Actor, FVector SpawnLocation)
@@ -111,4 +167,14 @@ ARouteStraight* AHospitalGameModeBase::createActor(UWorld* World, TSubclassOf<AR
 	}
 
 	return SpawnedActor;
+}
+
+void AHospitalGameModeBase::RotateRoute(ARouteStraight* Actor)
+{
+    Actor->AddActorLocalRotation(FRotator(0, 90, 0));
+    bool tmp=Actor->top;
+    Actor->top = Actor->left;
+    Actor->left = Actor->down;
+    Actor->down = Actor->right;
+    Actor->right = tmp;
 }
