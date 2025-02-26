@@ -18,6 +18,9 @@ public:
 	// Sets default values for this component's properties
 	UCheckPointComponent();
 
+	UPROPERTY(EditAnywhere, Category = "Side")
+	int Side;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

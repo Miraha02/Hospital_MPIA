@@ -22,4 +22,5 @@ class HOSPITAL_MPIA_API IRoute
 	GENERATED_BODY()
 
 public:
+	
 };

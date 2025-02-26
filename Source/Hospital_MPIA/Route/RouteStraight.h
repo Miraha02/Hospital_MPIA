@@ -15,6 +15,19 @@ class HOSPITAL_MPIA_API ARouteStraight : public AActor, public IRoute
 private:
 	
 public:	
+
+	UPROPERTY(EditAnywhere, Category = "Entree/Sortie")
+	bool top = false;
+
+	UPROPERTY(EditAnywhere, Category = "Entree/Sortie")
+	bool down = false;
+
+	UPROPERTY(EditAnywhere, Category = "Entree/Sortie")
+	bool left = false;
+
+	UPROPERTY(EditAnywhere, Category = "Entree/Sortie")
+	bool right = false;
+
 	// Sets default values for this actor's properties
 	ARouteStraight();
 

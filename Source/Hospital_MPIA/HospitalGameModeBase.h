@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Route/RouteStraight.h"
 #include "HospitalGameModeBase.generated.h"
 
 /**
@@ -18,5 +19,13 @@ class HOSPITAL_MPIA_API AHospitalGameModeBase : public AGameModeBase
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
-	TSubclassOf<AActor> RouteStraight;
+	TSubclassOf<ARouteStraight> RouteStraight;
+
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	TSubclassOf<ARouteStraight> RouteTurn;
+
+private:
+	ARouteStraight* createActor(UWorld* World, TSubclassOf<ARouteStraight> Actor, FVector SpawnLocation);
+
+	bool RouteIsCoherente(ARouteStraight* LastActor, ARouteStraight* NewActor);
 };
