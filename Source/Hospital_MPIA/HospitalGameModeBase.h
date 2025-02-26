@@ -24,8 +24,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
 	TSubclassOf<ARouteStraight> RouteTurn;
 
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	TSubclassOf<ARouteStraight> RouteT;
+
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	TSubclassOf<ARouteStraight> RouteCross;
+
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	int MapSize = 3;
+
 private:
 	ARouteStraight* createActor(UWorld* World, TSubclassOf<ARouteStraight> Actor, FVector SpawnLocation);
 
-	bool RouteIsCoherente(ARouteStraight* LastActor, ARouteStraight* NewActor);
+	bool IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor);
+	bool RouteIsCoherente(ARouteStraight* Neighbor, ARouteStraight* NewActor, int direction);
 };
