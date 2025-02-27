@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Route/HospitalRoute.h"
 #include "Route/RouteStraight.h"
 #include "HospitalGameModeBase.generated.h"
 
@@ -29,6 +30,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
 	TSubclassOf<ARouteStraight> RouteCross;
+
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	TSubclassOf<AHospitalRoute> Hospital;
 
 	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
 	int MapSize = 3;

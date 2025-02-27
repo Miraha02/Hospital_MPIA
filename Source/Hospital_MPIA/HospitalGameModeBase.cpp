@@ -9,7 +9,7 @@ void AHospitalGameModeBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!RouteStraight || !RouteTurn || !RouteT || !RouteCross) {
+    if (!RouteStraight || !RouteTurn || !RouteT || !RouteCross || !Hospital) {
         UE_LOG(LogTemp, Error, TEXT("Un acteur à spawn n'est pas assigné dans l'éditeur !"));
         return;
     }
@@ -63,6 +63,13 @@ void AHospitalGameModeBase::BeginPlay()
                     SpawnedActor = createActor(World, RouteTypes[1], SpawnLocation);
                     RotateRoute(SpawnedActor);
                     RotateRoute(SpawnedActor);
+                }
+
+                //Spawn l'hopital au milieu
+                else if (i==MapSize/2 && j==MapSize/2)
+                {
+                    SpawnedActor = createActor(World, Hospital, SpawnLocation);
+                    break;
                 }
 
                 //Spawn les arretes de la map
