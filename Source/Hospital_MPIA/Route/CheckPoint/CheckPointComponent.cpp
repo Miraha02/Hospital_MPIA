@@ -1,33 +1,81 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CheckPointComponent.h"
 
-// Sets default values for this component's properties
+// Constructeur
 UCheckPointComponent::UCheckPointComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
+	PrimaryComponentTick.bCanEverTick = true; // Pas besoin de Tick en général
 }
-
 
 // Called when the game starts
 void UCheckPointComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	if (!GetWorld()) return;
+
+	TArray<FHitResult> HitResults;
+	FVector Center = GetComponentLocation();
+	float DetectionRadius = 100.f; // Augmenté pour s'assurer qu'on capte bien les voisins
+
+	// Debug : Voir la sphère en jeu
+	DrawDebugSphere(GetWorld(), Center, DetectionRadius, 12, FColor::Green, false, 5.f);
+
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(DetectionRadius);
+    
+	// Correction : Faire un léger déplacement pour éviter un "Sweep statique"
+	FVector EndLocation = Center + FVector(1, 1, 0);
+
+	bool bHit = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		Center,
+		EndLocation, // Légère différence avec Start
+		FQuat::Identity,
+		ECC_WorldDynamic, // Changer le canal de collision
+		Sphere
+	);
+
+	if (bHit)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			UCheckPointComponent* OtherCheckPoint = Cast<UCheckPointComponent>(Hit.GetComponent());
+			if (OtherCheckPoint && OtherCheckPoint != this && !IsConnectedTo(OtherCheckPoint))
+			{
+				ConnectTo(OtherCheckPoint);
+			}
+		}
+	}
 }
 
 
-// Called every frame
+// Ajouter une connexion entre deux CheckPoints
+void UCheckPointComponent::ConnectTo(UCheckPointComponent* OtherCheckPoint)
+{
+	if (OtherCheckPoint && OtherCheckPoint != this && !ConnectedCheckPoints.Contains(OtherCheckPoint))
+	{
+		ConnectedCheckPoints.Add(OtherCheckPoint);
+		OtherCheckPoint->ConnectedCheckPoints.Add(this); // Connexion bidirectionnelle
+	}
+}
+
+// Vérifier si un CheckPoint est connecté à un autre
+bool UCheckPointComponent::IsConnectedTo(UCheckPointComponent* OtherCheckPoint) const
+{
+	return ConnectedCheckPoints.Contains(OtherCheckPoint);
+}
+
 void UCheckPointComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	for (UCheckPointComponent* ConnectedPoint : ConnectedCheckPoints)
+	{
+		if (ConnectedPoint)
+		{
+			DrawDebugLine(GetWorld(), 
+				GetComponentLocation(), 
+				ConnectedPoint->GetComponentLocation(), 
+				FColor::Blue, false, 0.1f, 0, 5.f);
+		}
+	}
 }
-

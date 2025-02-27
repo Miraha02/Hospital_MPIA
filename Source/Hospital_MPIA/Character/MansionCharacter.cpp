@@ -3,6 +3,8 @@
 
 #include "MansionCharacter.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 AMansionCharacter::AMansionCharacter()
 {
@@ -15,7 +17,11 @@ AMansionCharacter::AMansionCharacter()
 void AMansionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if(HospitalDataAsset)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = HospitalDataAsset->Speed;
+	}
 }
 
 // Called every frame

@@ -17,5 +17,8 @@ class HOSPITAL_MPIA_API UHospitalDataAsset : public UDataAsset
 public:
 	
 	UPROPERTY(EditAnywhere, Category="Turn")
+	float Speed = 600;
+
+	UPROPERTY(EditAnywhere, Category="Turn")
 	float TurningFactor = 0.25;
 };
