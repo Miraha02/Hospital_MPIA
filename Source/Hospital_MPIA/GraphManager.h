@@ -22,25 +22,22 @@ struct FGraphNode
 	FGraphNode(UCheckPointComponent* InCheckPoint) : CheckPoint(InCheckPoint) {}
 };
 
-UCLASS()
-class HOSPITAL_MPIA_API AGraphManager : public AActor
+class HOSPITAL_MPIA_API GraphManager
 {
-	GENERATED_BODY()
 
 public:
 
-	AGraphManager();
+	GraphManager();
 
 	
 	// Map contenant tous les nœuds du graphe
 	UPROPERTY()
 	TMap<UCheckPointComponent*, FGraphNode> Graph;
-
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
+	
 	// Générer le graphe
 	void SetupGraph();
 
 	// Trouver le chemin entre deux CheckPoints
 	TArray<UCheckPointComponent*> FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal);
+	FVector GetNearestCheckpoint(FVector Location);
 };

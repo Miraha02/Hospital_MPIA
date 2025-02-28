@@ -3,35 +3,22 @@
 
 #include "GraphManager.h"
 
+#include "AITestsCommon.h"
+#include "AITestsCommon.h"
+#include "AITestsCommon.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
-AGraphManager::AGraphManager()
+GraphManager::GraphManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
-void AGraphManager::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AGraphManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-void AGraphManager::SetupGraph()
+void GraphManager::SetupGraph()
 {
 	// Récupérer tous les CheckPoints dans la scène
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(FAITestHelpers::GetWorld(), AActor::StaticClass(), FoundActors);
 
 	// Ajouter chaque CheckPoint au graphe
 	for (AActor* Actor : FoundActors)
@@ -56,8 +43,87 @@ void AGraphManager::SetupGraph()
 	}
 }
 
-TArray<UCheckPointComponent*> AGraphManager::FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal)
+TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal)
 {
-	return TArray<UCheckPointComponent*>();
+	if (!Graph.Contains(Start) || !Graph.Contains(Goal))
+		return {};
+
+	// Priority queue (Min-Heap)
+	TMap<UCheckPointComponent*, float> GScore;
+	TMap<UCheckPointComponent*, float> FScore;
+	TMap<UCheckPointComponent*, UCheckPointComponent*> CameFrom;
+
+	TArray<UCheckPointComponent*> OpenSet;
+	OpenSet.Add(Start);
+	GScore.Add(Start, 0);
+	FScore.Add(Start, FVector::Dist(Start->GetComponentLocation(), Goal->GetComponentLocation()));
+
+	while (OpenSet.Num() > 0)
+	{
+		// Trouver le noeud avec le plus petit FScore
+		UCheckPointComponent* Current = OpenSet[0];
+		for (UCheckPointComponent* Node : OpenSet)
+		{
+			if (FScore.Contains(Node) && FScore[Node] < FScore[Current])
+				Current = Node;
+		}
+
+		// Si on atteint la cible, reconstruire le chemin
+		if (Current == Goal)
+		{
+			TArray<UCheckPointComponent*> Path;
+			while (Current)
+			{
+				Path.Insert(Current, 0);
+				Current = CameFrom.Contains(Current) ? CameFrom[Current] : nullptr;
+			}
+			return Path;
+		}
+
+		OpenSet.Remove(Current);
+
+		// Parcourir les voisins
+		for (UCheckPointComponent* Neighbor : Graph[Current].Neighbors)
+		{
+			float TentativeGScore = GScore[Current] + FVector::Dist(Current->GetComponentLocation(), Neighbor->GetComponentLocation());
+
+			if (!GScore.Contains(Neighbor) || TentativeGScore < GScore[Neighbor])
+			{
+				CameFrom.Add(Neighbor, Current);
+				GScore.Add(Neighbor, TentativeGScore);
+				FScore.Add(Neighbor, TentativeGScore + FVector::Dist(Neighbor->GetComponentLocation(), Goal->GetComponentLocation()));
+
+				if (!OpenSet.Contains(Neighbor))
+					OpenSet.Add(Neighbor);
+			}
+		}
+	}
+
+	// Aucun chemin trouvé
+	return {};
 }
 
+FVector GraphManager::GetNearestCheckpoint(FVector Location)
+{
+	UCheckPointComponent* NearestCheckPoint = nullptr;
+	float MinDistance = FLT_MAX;
+
+	// Parcours tous les CheckPointComponents du monde
+	for (TObjectIterator<UCheckPointComponent> It; It; ++It)
+	{
+		UCheckPointComponent* CheckPoint = *It;
+
+		if (CheckPoint && CheckPoint->GetOwner()) // Vérifie qu'il est valide
+		{
+			float Distance = FVector::Dist(Location, CheckPoint->GetComponentLocation());
+
+			if (Distance < MinDistance)
+			{
+				MinDistance = Distance;
+				NearestCheckPoint = CheckPoint;
+			}
+		}
+	}
+
+	return NearestCheckPoint->GetComponentLocation();
+}
