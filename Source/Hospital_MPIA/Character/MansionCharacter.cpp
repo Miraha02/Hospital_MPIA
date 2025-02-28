@@ -56,7 +56,7 @@ void AMansionCharacter::Turn(float TurnValue)
 	}
 
 	float Velocity = GetVelocity().Size();
-	if (Velocity > HospitalDataAsset->MinVelocityToTurn || Velocity < HospitalDataAsset->MinVelocityToTurn)
+	if (Velocity > HospitalDataAsset->MinVelocityToTurn || Velocity < -HospitalDataAsset->MinVelocityToTurn)
 	{
 		float TurningFactor = 0.25f;
 		if (HospitalDataAsset)
