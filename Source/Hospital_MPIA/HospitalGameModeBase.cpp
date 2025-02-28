@@ -184,4 +184,14 @@ void AHospitalGameModeBase::RotateRoute(ARouteStraight* Actor)
     Actor->left = Actor->down;
     Actor->down = Actor->right;
     Actor->right = tmp;
+
+    Actor->UpdateComponentTransforms();
+
+    Actor->SetActorEnableCollision(false);
+    Actor->SetActorEnableCollision(true);
+}
+
+void SetupGraphe()
+{
+    
 }

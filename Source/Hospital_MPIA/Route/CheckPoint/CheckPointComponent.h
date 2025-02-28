@@ -18,6 +18,7 @@ public:
 	TArray<UCheckPointComponent*> ConnectedCheckPoints;
 
 protected:
+	void DetectNeighbors();
 	// Called when the game starts
 	virtual void BeginPlay() override;
 

@@ -11,14 +11,22 @@ void UCheckPointComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Attendre 0.1s avant d'effectuer le SphereTrace pour laisser le temps aux rotations d'être appliquées
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCheckPointComponent::DetectNeighbors, 0.1f, false);
+}
+
+
+void UCheckPointComponent::DetectNeighbors()
+{
 	if (!GetWorld()) return;
 
 	TArray<FHitResult> HitResults;
 	FVector Center = GetComponentLocation();
-	float DetectionRadius = 100.f; // Augmenté pour s'assurer qu'on capte bien les voisins
+	float DetectionRadius = 150.f; // Augmenté pour s'assurer qu'on capte bien les voisins
 
 	// Debug : Voir la sphère en jeu
-	DrawDebugSphere(GetWorld(), Center, DetectionRadius, 12, FColor::Green, false, 5.f);
+	DrawDebugSphere(GetWorld(), Center, DetectionRadius, 12, FColor::Green, false, 25.f);
 
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(DetectionRadius);
     
@@ -46,7 +54,6 @@ void UCheckPointComponent::BeginPlay()
 		}
 	}
 }
-
 
 // Ajouter une connexion entre deux CheckPoints
 void UCheckPointComponent::ConnectTo(UCheckPointComponent* OtherCheckPoint)
