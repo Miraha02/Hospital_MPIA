@@ -31,8 +31,6 @@ public:
 
 protected:
 
-    bool IsMoving = false;
-
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
 
@@ -41,5 +39,4 @@ protected:
     void Turn(const FInputActionValue& Value);
 
 private:
-	void IsNotMoving();
 };

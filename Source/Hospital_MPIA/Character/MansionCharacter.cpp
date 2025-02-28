@@ -41,3 +41,29 @@ UHospitalDataAsset* AMansionCharacter::GetHospitalDataAsset() const
 {
 	return HospitalDataAsset;
 }
+
+void AMansionCharacter::Move(FVector ForwardDirection, float Movement)
+{
+	AddMovementInput(ForwardDirection, Movement);
+}
+
+void AMansionCharacter::Turn(float TurnValue)
+{
+	if (!HospitalDataAsset)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HospitalDataAsset is Not Assigned in BP Details"));
+		return;
+	}
+
+	float Velocity = GetVelocity().Size();
+	if (Velocity > HospitalDataAsset->MinVelocityToTurn || Velocity < HospitalDataAsset->MinVelocityToTurn)
+	{
+		float TurningFactor = 0.25f;
+		if (HospitalDataAsset)
+		{
+			TurningFactor = HospitalDataAsset->TurningFactor;
+		}
+		
+		AddControllerYawInput(TurnValue * TurningFactor * (Velocity > 0 ? 1 : -1));
+	}
+}

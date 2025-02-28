@@ -28,7 +28,6 @@ void AMansionPlayerController::SetupInputComponent()
     if (EnhancedInput)
     {
         EnhancedInput->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AMansionPlayerController::Move);
-        EnhancedInput->BindAction(IA_Move, ETriggerEvent::Completed, this, &AMansionPlayerController::IsNotMoving);
 
         EnhancedInput->BindAction(IA_Look, ETriggerEvent::Triggered, this, &AMansionPlayerController::Look);
         
@@ -42,7 +41,9 @@ void AMansionPlayerController::Move(const FInputActionValue& Value)
 {
     float Movement = Value.Get<float>();
     APawn* ControlledPawn = GetPawn();
-    if (ControlledPawn)
+    AMansionCharacter* MansionCharacter = Cast<AMansionCharacter>(ControlledPawn);
+    
+    if (MansionCharacter)
     {
         // Récupérer la rotation actuelle du véhicule
         FRotator VehicleRotation = ControlledPawn->GetActorRotation();
@@ -51,9 +52,7 @@ void AMansionPlayerController::Move(const FInputActionValue& Value)
         FVector ForwardDirection = FRotationMatrix(VehicleRotation).GetUnitAxis(EAxis::X);
 
         // Ajouter le mouvement
-        ControlledPawn->AddMovementInput(ForwardDirection, Movement);
-
-        IsMoving = true;
+        MansionCharacter->Move(ForwardDirection, Movement);
     }
 }
 
@@ -86,24 +85,10 @@ void AMansionPlayerController::Turn(const FInputActionValue& Value)
     AMansionCharacter* MansionCharacter = Cast<AMansionCharacter>(ControlledPawn);
     if (MansionCharacter)
     {
-        UHospitalDataAsset* HospDataAsset = MansionCharacter->GetHospitalDataAsset();
-        if (ControlledPawn && IsMoving) // V�rifie si on avance
-        {
-            float TurningFactor = 0.25;
-            if (HospDataAsset)
-            {
-                TurningFactor = HospDataAsset->TurningFactor;
-            }
-            AddYawInput(TurnValue*TurningFactor);
-        }
+        MansionCharacter->Turn(TurnValue);
     }
     else
     {
         UE_LOG(LogTemp, Error, TEXT("Le cast vers AMansionPlayerCharacter a échoué !"));
     }
-}
-
-void AMansionPlayerController::IsNotMoving()
-{
-    IsMoving = false;
 }

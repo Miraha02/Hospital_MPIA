@@ -34,4 +34,7 @@ public:
 
 	UHospitalDataAsset* GetHospitalDataAsset() const;
 
+	void Move(FVector ForwardDirection, float Movement);
+	void Turn(float TurnValue);
+
 };

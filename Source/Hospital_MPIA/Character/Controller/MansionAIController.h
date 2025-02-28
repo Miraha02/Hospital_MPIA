@@ -13,5 +13,7 @@ UCLASS()
 class HOSPITAL_MPIA_API AMansionAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+
+protected:
+	virtual void Tick(float DeltaTime) override;
 };

@@ -21,4 +21,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Turn")
 	float TurningFactor = 0.25;
+
+	UPROPERTY(EditAnywhere, Category="Turn")
+	float MinVelocityToTurn = 0.25;
 };
