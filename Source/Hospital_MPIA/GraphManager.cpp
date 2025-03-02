@@ -7,6 +7,7 @@
 #include "AITestsCommon.h"
 #include "AITestsCommon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 GraphManager::GraphManager()
@@ -16,6 +17,7 @@ GraphManager::GraphManager()
 
 void GraphManager::SetupGraph()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Setting up the graph !"));
 	// Récupérer tous les CheckPoints dans la scène
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(FAITestHelpers::GetWorld(), AActor::StaticClass(), FoundActors);
@@ -126,4 +128,21 @@ FVector GraphManager::GetNearestCheckpoint(FVector Location)
 	}
 
 	return NearestCheckPoint->GetComponentLocation();
+}
+
+UCheckPointComponent* GraphManager::GetRandomCheckpoint()
+{
+	if (Graph.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Graph is empty! No checkpoint available."));
+		return nullptr;
+	}
+
+	// Convertir les clés de la map (les CheckPoints) en array
+	TArray<UCheckPointComponent*> CheckPoints;
+	Graph.GetKeys(CheckPoints);
+
+	// Choisir un index aléatoire
+	int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, CheckPoints.Num() - 1);
+	return CheckPoints[RandomIndex];
 }

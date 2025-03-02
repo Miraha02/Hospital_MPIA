@@ -11,5 +11,7 @@ public:
 	};
 
 	FVector Seek(const AMansionCharacter* Character, FVector TargetLocation, FVector ActorLocation);
+
+	FVector Arrival(const AMansionCharacter* Character, FVector TargetLocation, FVector ActorLocation);
 	
 };

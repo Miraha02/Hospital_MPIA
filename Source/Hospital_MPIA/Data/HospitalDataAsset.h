@@ -16,7 +16,7 @@ class HOSPITAL_MPIA_API UHospitalDataAsset : public UDataAsset
 	
 public:
 	
-	UPROPERTY(EditAnywhere, Category="Turn")
+	UPROPERTY(EditAnywhere, Category="Movement")
 	float Speed = 600;
 
 	UPROPERTY(EditAnywhere, Category="Turn")
@@ -24,4 +24,15 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Turn")
 	float MinVelocityToTurn = 0.25;
+
+	UPROPERTY(EditAnywhere, Category="Stop")
+	float AcceptableStopDistance = 50.0;
+
+	UPROPERTY(EditAnywhere, Category="Stop")
+	float AcceptableStopSpeed = 10.0;
+
+	bool BeenReached = false;
+
+	UPROPERTY(EditAnywhere, Category="DEBUG")
+	bool ShowLog = true;
 };

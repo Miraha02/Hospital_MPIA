@@ -17,9 +17,13 @@ void AMansionAIController::BeginPlay()
 	{
 		GraphManager = new class GraphManager;
 	}
+	// Setup le graph de checkpoint
+	GraphManager->SetupGraph();
 	
 	TargetLocation = GraphManager->GetNearestCheckpoint(GetPawn()->GetActorLocation());
-	
+
+	ChooseRandomCheckpoint();
+
 }
 
 void AMansionAIController::Tick(float DeltaTime)
@@ -33,14 +37,30 @@ void AMansionAIController::Tick(float DeltaTime)
 		Steering Steering;
 		FVector Steer = Steering.Seek(MansionCharacter, TargetLocation, MansionCharacter->GetActorLocation());
 
-		UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %s"),*TargetLocation.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("ActorLocation : %s"),*MansionCharacter->GetActorLocation().ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Steer : %s"),*Steer.ToString());
+		if (MansionCharacter->HospitalDataAsset->ShowLog)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %s"),*TargetLocation.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("ActorLocation : %s"),*MansionCharacter->GetActorLocation().ToString());
+			UE_LOG(LogTemp, Warning, TEXT("Steer : %s"),*Steer.ToString());
+		}
 		
 		MansionCharacter->Move(Steer, 1);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not a MansionCharacter"));
+	}
+}
+
+void AMansionAIController::ChooseRandomCheckpoint()
+{
+	if (GraphManager)
+	{
+		UCheckPointComponent* RandomCheckPoint = GraphManager->GetRandomCheckpoint();
+		if (RandomCheckPoint)
+		{
+			TargetLocation = RandomCheckPoint->GetComponentLocation();
+			UE_LOG(LogTemp, Warning, TEXT("Selected CheckPoint: %s"), *TargetLocation.ToString());
+		}
 	}
 }

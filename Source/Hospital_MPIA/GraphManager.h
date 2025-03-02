@@ -40,4 +40,6 @@ public:
 	// Trouver le chemin entre deux CheckPoints
 	TArray<UCheckPointComponent*> FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal);
 	FVector GetNearestCheckpoint(FVector Location);
+
+	UCheckPointComponent* GetRandomCheckpoint();
 };
