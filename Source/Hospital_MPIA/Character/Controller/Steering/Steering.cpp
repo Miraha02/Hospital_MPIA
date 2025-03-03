@@ -3,8 +3,9 @@
 #include "Chaos/PBDSuspensionConstraintData.h"
 
 
-FVector Steering::Seek(const AMansionCharacter* Character, FVector TargetLocation, FVector ActorLocation)
+FVector Steering::Seek(const AMansionCharacter* Character, FVector TargetLocation)
 {
+	FVector ActorLocation = Character->GetActorLocation();
 	FVector desired_velocity = TargetLocation - ActorLocation;
 
 	FVector Velocity = Character->GetVelocity();
@@ -21,9 +22,10 @@ FVector Steering::Seek(const AMansionCharacter* Character, FVector TargetLocatio
 	return steering;
 }
 
-FVector Steering::Arrival(const AMansionCharacter* Character, FVector TargetLocation, FVector ActorLocation)
+FVector Steering::Arrival(const AMansionCharacter* Character, AMansionAIController* AIController, FVector TargetLocation)
 {
 	UHospitalDataAsset* HospitalDataAsset = Character->HospitalDataAsset;
+	FVector ActorLocation = Character->GetActorLocation();
 
 	if (!HospitalDataAsset)
 	{
@@ -31,8 +33,10 @@ FVector Steering::Arrival(const AMansionCharacter* Character, FVector TargetLoca
 		return FVector::ZeroVector;
 	}
 	
-	if (HospitalDataAsset->BeenReached)
+	if (AIController->TargetReached)
 	{
+		if (HospitalDataAsset->ShowLog)
+			UE_LOG(LogTemp, Warning, TEXT("Target has been reached !"));
 		return FVector(0,0,0);
 	}
 	
@@ -41,7 +45,7 @@ FVector Steering::Arrival(const AMansionCharacter* Character, FVector TargetLoca
 	
 	FVector desired_velocity = TargetLocation - ActorLocation;
 	float distance = desired_velocity.Length();
-	float ramped_speed = MaxSpeed * (distance / 250);
+	float ramped_speed = MaxSpeed * (distance / HospitalDataAsset->DistanceBeforeBreaking) * (1 / HospitalDataAsset->BreakingFactor);
 	float clipped_speed = std::min(ramped_speed, MaxSpeed);
 
 	desired_velocity = desired_velocity.GetSafeNormal() * clipped_speed;
@@ -52,7 +56,7 @@ FVector Steering::Arrival(const AMansionCharacter* Character, FVector TargetLoca
 	if ((TargetLocation - ActorLocation).Size() <= HospitalDataAsset->AcceptableStopDistance && Velocity.Size() < HospitalDataAsset->AcceptableStopSpeed)
 	{
 		steering = FVector::ZeroVector;  // Arrêter l'acteur
-		HospitalDataAsset->BeenReached = true;
+		AIController->TargetReached = true;
 	}
 
 	return steering;

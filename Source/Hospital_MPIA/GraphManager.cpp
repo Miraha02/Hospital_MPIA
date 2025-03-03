@@ -50,25 +50,24 @@ TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start
 	if (!Graph.Contains(Start) || !Graph.Contains(Goal))
 		return {};
 
-	// Priority queue (Min-Heap)
-	TMap<UCheckPointComponent*, float> GScore;
-	TMap<UCheckPointComponent*, float> FScore;
-	TMap<UCheckPointComponent*, UCheckPointComponent*> CameFrom;
+	// Dijkstra: Initialisation
+	TMap<UCheckPointComponent*, float> GScore;  // Distance minimale trouvée
+	TMap<UCheckPointComponent*, UCheckPointComponent*> CameFrom; // Chemin pour reconstruire la route
 
+	// Priority queue (Min-Heap avec TArray + tri)
 	TArray<UCheckPointComponent*> OpenSet;
 	OpenSet.Add(Start);
 	GScore.Add(Start, 0);
-	FScore.Add(Start, FVector::Dist(Start->GetComponentLocation(), Goal->GetComponentLocation()));
 
 	while (OpenSet.Num() > 0)
 	{
-		// Trouver le noeud avec le plus petit FScore
+		// Trouver le noeud avec le plus petit GScore
+		OpenSet.Sort([&](const UCheckPointComponent& A, const UCheckPointComponent& B) {
+			return GScore[&A] < GScore[&B];
+			});
+
 		UCheckPointComponent* Current = OpenSet[0];
-		for (UCheckPointComponent* Node : OpenSet)
-		{
-			if (FScore.Contains(Node) && FScore[Node] < FScore[Current])
-				Current = Node;
-		}
+		OpenSet.RemoveAt(0);
 
 		// Si on atteint la cible, reconstruire le chemin
 		if (Current == Goal)
@@ -82,18 +81,15 @@ TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start
 			return Path;
 		}
 
-		OpenSet.Remove(Current);
-
 		// Parcourir les voisins
 		for (UCheckPointComponent* Neighbor : Graph[Current].Neighbors)
 		{
-			float TentativeGScore = GScore[Current] + FVector::Dist(Current->GetComponentLocation(), Neighbor->GetComponentLocation());
+			float TentativeGScore = GScore[Current] + 1;
 
 			if (!GScore.Contains(Neighbor) || TentativeGScore < GScore[Neighbor])
 			{
 				CameFrom.Add(Neighbor, Current);
 				GScore.Add(Neighbor, TentativeGScore);
-				FScore.Add(Neighbor, TentativeGScore + FVector::Dist(Neighbor->GetComponentLocation(), Goal->GetComponentLocation()));
 
 				if (!OpenSet.Contains(Neighbor))
 					OpenSet.Add(Neighbor);
@@ -102,10 +98,12 @@ TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start
 	}
 
 	// Aucun chemin trouvé
+	UE_LOG(LogTemp, Warning, TEXT("Aucun chemin trouvé !"));
 	return {};
 }
 
-FVector GraphManager::GetNearestCheckpoint(FVector Location)
+
+UCheckPointComponent* GraphManager::GetNearestCheckpoint(FVector Location)
 {
 	UCheckPointComponent* NearestCheckPoint = nullptr;
 	float MinDistance = FLT_MAX;
@@ -127,7 +125,7 @@ FVector GraphManager::GetNearestCheckpoint(FVector Location)
 		}
 	}
 
-	return NearestCheckPoint->GetComponentLocation();
+	return NearestCheckPoint;
 }
 
 UCheckPointComponent* GraphManager::GetRandomCheckpoint()

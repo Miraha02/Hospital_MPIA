@@ -31,7 +31,11 @@ public:
 	UPROPERTY(EditAnywhere, Category="Stop")
 	float AcceptableStopSpeed = 10.0;
 
-	bool BeenReached = false;
+	UPROPERTY(EditAnywhere, Category = "Stop")
+	float DistanceBeforeBreaking = 100.0;
+
+	UPROPERTY(EditAnywhere, Category = "Stop")
+	float BreakingFactor = 3;
 
 	UPROPERTY(EditAnywhere, Category="DEBUG")
 	bool ShowLog = true;

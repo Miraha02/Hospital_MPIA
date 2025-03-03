@@ -17,7 +17,15 @@ class HOSPITAL_MPIA_API AMansionAIController : public AAIController
 
 private:
 	
-	FVector TargetLocation;
+	UCheckPointComponent* Target;
+	UCheckPointComponent* Nearest;
+
+	TArray<UCheckPointComponent*> Path;
+	int index = 0;
+
+public:
+
+	bool TargetReached = false;
 	
 protected:
 
