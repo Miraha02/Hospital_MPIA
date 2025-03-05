@@ -18,7 +18,6 @@ public:
 	TArray<UCheckPointComponent*> ConnectedCheckPoints;
 
 protected:
-	void DetectNeighbors();
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
@@ -31,4 +30,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Connections")
 	bool IsConnectedTo(UCheckPointComponent* OtherCheckPoint) const;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void DetectNeighbors();
 };

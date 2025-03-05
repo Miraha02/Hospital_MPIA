@@ -4,6 +4,7 @@
 #include "HospitalGameModeBase.h"
 #include "Math/UnrealMathUtility.h"
 #include "Route/RouteStraight.h"
+#include "GraphManager.h"
 
 void AHospitalGameModeBase::BeginPlay()
 {
@@ -133,6 +134,14 @@ void AHospitalGameModeBase::BeginPlay()
             }
         }
     }
+
+    //Set up le graph de connections
+    UGraphManager* GraphManager = GetWorld()->GetSubsystem<UGraphManager>();
+
+    GraphManager->SetupGraph();
+
+    //Affichage des connections
+    GraphManager->DrawGraphConnections();
 }
 
 bool AHospitalGameModeBase::IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor)

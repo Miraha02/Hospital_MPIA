@@ -15,7 +15,7 @@ void AMansionAIController::BeginPlay()
 
 	if (!GraphManager)
 	{
-		GraphManager = new class GraphManager;
+		GraphManager = GetWorld()->GetSubsystem<UGraphManager>();
 	}
 
 	AActor* Actor = GetPawn();
@@ -33,9 +33,11 @@ void AMansionAIController::BeginPlay()
 
 	TargetReached = false;
 
-	// Setup le graph de checkpoint
-	GraphManager->SetupGraph();
-	
+	/*
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMansionAIController::DelayedSetupGraph, 0.1f, false);
+	*/
+
 	Nearest = GraphManager->GetNearestCheckpoint(GetPawn()->GetActorLocation());
 
 	ChooseRandomCheckpoint();
@@ -47,6 +49,12 @@ void AMansionAIController::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Path is empty!"));
 	}
 
+	int i = 0;
+	for (auto step : Path)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Node %d of Path : Component : %s"), i, *step->GetComponentLocation().ToString());
+			++i;
+	}
 }
 
 void AMansionAIController::Tick(float DeltaTime)
@@ -64,15 +72,28 @@ void AMansionAIController::Tick(float DeltaTime)
 	if (MansionCharacter)
 	{
 		Steering Steering;
-		UCheckPointComponent* ActualTarget = Path[index];
-		FVector Steer;
-		if (ActualTarget == Target)
+
+		if (TargetReached)
 		{
-			Steer = Steering.Arrival(MansionCharacter, this, ActualTarget->GetComponentLocation());
+			++index;
+			TargetReached = false;
+		}
+
+		if (index >= Path.Num())
+		{
+			return;
+		}
+
+
+		PathNode = Path[index];
+		FVector Steer;
+		if (PathNode == Target)
+		{
+			Steer = Steering.Arrival(MansionCharacter, this, PathNode->GetComponentLocation());
 		}
 		else
 		{
-			Steer = Steering.Seek(MansionCharacter, ActualTarget->GetComponentLocation());
+			Steer = Steering.Seek(MansionCharacter, PathNode->GetComponentLocation());
 		}
 
 		if (MansionCharacter->HospitalDataAsset->ShowLog)

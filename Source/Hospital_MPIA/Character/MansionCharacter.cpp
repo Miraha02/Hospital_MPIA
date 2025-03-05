@@ -4,6 +4,7 @@
 #include "MansionCharacter.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Controller/MansionAIController.h"
 
 // Sets default values
 AMansionCharacter::AMansionCharacter()

@@ -1,45 +1,48 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "Route/CheckPoint/CheckPointComponent.h"
 #include "GraphManager.generated.h"
 
 USTRUCT()
 struct FGraphNode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	// Référence au CheckPoint associé
-	UPROPERTY()
-	UCheckPointComponent* CheckPoint;
+    UPROPERTY()
+    UCheckPointComponent* CheckPoint;
 
-	// Liste des voisins connectés
-	UPROPERTY()
-	TArray<UCheckPointComponent*> Neighbors;
+    UPROPERTY()
+    TArray<UCheckPointComponent*> Neighbors;
 
-	FGraphNode() : CheckPoint(nullptr) {}
-	FGraphNode(UCheckPointComponent* InCheckPoint) : CheckPoint(InCheckPoint) {}
+    FGraphNode() : CheckPoint(nullptr) {}
+    FGraphNode(UCheckPointComponent* InCheckPoint) : CheckPoint(InCheckPoint) {}
 };
 
-class HOSPITAL_MPIA_API GraphManager
+UCLASS()
+class HOSPITAL_MPIA_API UGraphManager : public UWorldSubsystem
 {
+    GENERATED_BODY()
+
+protected:
+
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
 
 public:
+    UGraphManager();
 
-	GraphManager();
+    void SetupGraph();
 
-	
-	// Map contenant tous les nœuds du graphe
-	UPROPERTY()
-	TMap<UCheckPointComponent*, FGraphNode> Graph;
-	
-	// Générer le graphe
-	void SetupGraph();
+    TArray<UCheckPointComponent*> FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal);
+    UCheckPointComponent* GetNearestCheckpoint(FVector Location);
+    UCheckPointComponent* GetRandomCheckpoint();
 
-	// Trouver le chemin entre deux CheckPoints
-	TArray<UCheckPointComponent*> FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal);
-	UCheckPointComponent* GetNearestCheckpoint(FVector Location);
+    void AddCheckpoint(UCheckPointComponent* CheckPoint);
 
-	UCheckPointComponent* GetRandomCheckpoint();
+    void DrawGraphConnections();
+
+private:
+    TMap<UCheckPointComponent*, FGraphNode> Graph;
 };

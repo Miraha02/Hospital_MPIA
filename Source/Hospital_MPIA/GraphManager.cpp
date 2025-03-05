@@ -9,46 +9,70 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+void UGraphManager::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	Graph.Empty();
+}
+
+void UGraphManager::Deinitialize()
+{
+	Super::Deinitialize();
+	Graph.Empty();
+}
+
 // Sets default values
-GraphManager::GraphManager()
+UGraphManager::UGraphManager()
 {
 
 }
 
-void GraphManager::SetupGraph()
+void UGraphManager::SetupGraph()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Setting up the graph !"));
-	// Récupérer tous les CheckPoints dans la scène
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(FAITestHelpers::GetWorld(), AActor::StaticClass(), FoundActors);
+	UE_LOG(LogTemp, Warning, TEXT("Setting up the Connections graph"));
 
-	// Ajouter chaque CheckPoint au graphe
-	for (AActor* Actor : FoundActors)
+	// S'assurer que le graphe contient bien des checkpoints
+	if (Graph.Num() == 0)
 	{
-		if (UCheckPointComponent* CheckPoint = Actor->FindComponentByClass<UCheckPointComponent>())
+		UE_LOG(LogTemp, Warning, TEXT("No checkpoints found in the graph."));
+		return;
+	}
+
+	// Remplir les connexions entre les noeuds
+	for (auto& Entry : Graph)
+	{
+		UCheckPointComponent* CheckPoint = Entry.Key;
+		FGraphNode& Node = Entry.Value;
+
+		if (CheckPoint)
 		{
-			Graph.Add(CheckPoint, FGraphNode(CheckPoint));
+			CheckPoint->DetectNeighbors();
+			// Ajouter les connexions aux voisins
+			for (UCheckPointComponent* Neighbor : CheckPoint->ConnectedCheckPoints)
+			{
+				if (Graph.Contains(Neighbor))
+				{
+					Node.Neighbors.Add(Neighbor);
+					UE_LOG(LogTemp, Warning, TEXT("Connected %s to %s"),
+						*CheckPoint->GetName(), *Neighbor->GetName());
+				}
+			}
 		}
 	}
 
-	// Ajouter les connexions entre les CheckPoints
-	for (auto& Elem : Graph)
-	{
-		UCheckPointComponent* CheckPoint = Elem.Key;
-		FGraphNode& Node = Elem.Value;
-
-		// Ajouter les voisins connectés
-		for (UCheckPointComponent* Neighbor : CheckPoint->ConnectedCheckPoints)
-		{
-			Node.Neighbors.Add(Neighbor);
-		}
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Graph setup complete with %d nodes"), Graph.Num());
 }
 
-TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal)
+
+
+TArray<UCheckPointComponent*> UGraphManager::FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal)
 {
 	if (!Graph.Contains(Start) || !Graph.Contains(Goal))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Au moins l'un des composants cible n'est pas présents dans le graphe !"))
 		return {};
+	}
 
 	// Dijkstra: Initialisation
 	TMap<UCheckPointComponent*, float> GScore;  // Distance minimale trouvée
@@ -103,17 +127,17 @@ TArray<UCheckPointComponent*> GraphManager::FindPath(UCheckPointComponent* Start
 }
 
 
-UCheckPointComponent* GraphManager::GetNearestCheckpoint(FVector Location)
+UCheckPointComponent* UGraphManager::GetNearestCheckpoint(FVector Location)
 {
 	UCheckPointComponent* NearestCheckPoint = nullptr;
 	float MinDistance = FLT_MAX;
 
-	// Parcours tous les CheckPointComponents du monde
-	for (TObjectIterator<UCheckPointComponent> It; It; ++It)
-	{
-		UCheckPointComponent* CheckPoint = *It;
 
-		if (CheckPoint && CheckPoint->GetOwner()) // Vérifie qu'il est valide
+	for (auto& Entry : Graph)
+	{
+		UCheckPointComponent* CheckPoint = Entry.Key;
+
+		if (CheckPoint)
 		{
 			float Distance = FVector::Dist(Location, CheckPoint->GetComponentLocation());
 
@@ -128,7 +152,7 @@ UCheckPointComponent* GraphManager::GetNearestCheckpoint(FVector Location)
 	return NearestCheckPoint;
 }
 
-UCheckPointComponent* GraphManager::GetRandomCheckpoint()
+UCheckPointComponent* UGraphManager::GetRandomCheckpoint()
 {
 	if (Graph.Num() == 0)
 	{
@@ -143,4 +167,51 @@ UCheckPointComponent* GraphManager::GetRandomCheckpoint()
 	// Choisir un index aléatoire
 	int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, CheckPoints.Num() - 1);
 	return CheckPoints[RandomIndex];
+}
+
+void UGraphManager::AddCheckpoint(UCheckPointComponent* CheckPoint)
+{
+	if (!CheckPoint)
+		return;
+
+	if (!Graph.Contains(CheckPoint))
+	{
+		Graph.Add(CheckPoint, FGraphNode(CheckPoint));
+		UE_LOG(LogTemp, Warning, TEXT("Checkpoint ajouté au graphe: %s"), *CheckPoint->GetName());
+	}
+}
+
+void UGraphManager::DrawGraphConnections()
+{
+	if (!GetWorld()) return;
+
+	for (const auto& Entry : Graph)
+	{
+		UCheckPointComponent* CheckPoint = Entry.Key;
+		const FGraphNode& Node = Entry.Value;
+
+		if (CheckPoint)
+		{
+			FVector StartLocation = CheckPoint->GetComponentLocation();
+
+			for (UCheckPointComponent* ConnectedPoint : Node.Neighbors)
+			{
+				if (ConnectedPoint)
+				{
+					FVector EndLocation = ConnectedPoint->GetComponentLocation();
+
+					// Tracer une ligne entre les deux CheckPoints
+					DrawDebugLine(GetWorld(),
+						StartLocation,
+						EndLocation,
+						FColor::Blue,
+						false,  // Persiste seulement temporairement
+						15.0f,   // Durée d'affichage
+						0,      // Aucun canal de profondeur
+						5.f     // Épaisseur de la ligne
+					);
+				}
+			}
+		}
+	}
 }

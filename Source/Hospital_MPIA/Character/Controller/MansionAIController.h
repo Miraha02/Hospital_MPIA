@@ -16,15 +16,18 @@ class HOSPITAL_MPIA_API AMansionAIController : public AAIController
 	GENERATED_BODY()
 
 private:
-	
-	UCheckPointComponent* Target;
 	UCheckPointComponent* Nearest;
+	UCheckPointComponent* Target;
 
 	TArray<UCheckPointComponent*> Path;
 	int index = 0;
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Target")
+	UCheckPointComponent* PathNode;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Target")
 	bool TargetReached = false;
 	
 protected:
@@ -35,5 +38,5 @@ protected:
 
 public:
 	
-	GraphManager* GraphManager;
+	UGraphManager* GraphManager;
 };

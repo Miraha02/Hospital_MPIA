@@ -1,4 +1,5 @@
 #include "CheckPointComponent.h"
+#include "../../GraphManager.h"
 
 // Constructeur
 UCheckPointComponent::UCheckPointComponent()
@@ -11,9 +12,17 @@ void UCheckPointComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UGraphManager* GraphManager = GetWorld()->GetSubsystem<UGraphManager>();
+	if (GraphManager)
+	{
+		GraphManager->AddCheckpoint(this);
+	}
+
+	/*
 	// Attendre 0.1s avant d'effectuer le SphereTrace pour laisser le temps aux rotations d'être appliquées
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCheckPointComponent::DetectNeighbors, 0.1f, false);
+	*/
 }
 
 
@@ -74,15 +83,4 @@ bool UCheckPointComponent::IsConnectedTo(UCheckPointComponent* OtherCheckPoint) 
 void UCheckPointComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	for (UCheckPointComponent* ConnectedPoint : ConnectedCheckPoints)
-	{
-		if (ConnectedPoint)
-		{
-			DrawDebugLine(GetWorld(), 
-				GetComponentLocation(), 
-				ConnectedPoint->GetComponentLocation(), 
-				FColor::Blue, false, 0.1f, 0, 5.f);
-		}
-	}
 }
