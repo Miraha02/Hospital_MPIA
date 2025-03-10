@@ -45,6 +45,7 @@ UHospitalDataAsset* AMansionCharacter::GetHospitalDataAsset() const
 
 void AMansionCharacter::Move(FVector ForwardDirection, float Movement)
 {
+	IsMoving = true;
 	AddMovementInput(ForwardDirection, Movement);
 }
 
@@ -57,14 +58,11 @@ void AMansionCharacter::Turn(float TurnValue)
 	}
 
 	float Velocity = GetVelocity().Length();
-	if (Velocity > HospitalDataAsset->MinVelocityToTurn || Velocity < -HospitalDataAsset->MinVelocityToTurn)
+	float TurningFactor = 0.25f;
+	if (HospitalDataAsset)
 	{
-		float TurningFactor = 0.25f;
-		if (HospitalDataAsset)
-		{
-			TurningFactor = HospitalDataAsset->TurningFactor;
-		}
-		
-		AddControllerYawInput(TurnValue * TurningFactor * (Velocity > 0 ? 1 : -1));
+		TurningFactor = HospitalDataAsset->TurningFactor;
 	}
+
+	AddControllerYawInput(TurnValue * TurningFactor);
 }

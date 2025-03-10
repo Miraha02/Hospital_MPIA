@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Route/HospitalRoute.h"
 #include "Route/RouteStraight.h"
+#include "GraphManager.h"
 #include "HospitalGameModeBase.generated.h"
 
 /**
@@ -37,10 +38,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
 	int MapSize = 3;
 
+	UPROPERTY(EditDefaultsOnly, Category = "MapObject")
+	int NB_Patient = 3;
+
+	TArray<UCheckPointComponent*> ComponentsTarget;
+
 private:
 	ARouteStraight* createActor(UWorld* World, TSubclassOf<ARouteStraight> Actor, FVector SpawnLocation);
 
 	void RotateRoute(ARouteStraight* Actor);
+	void SetupGraph();
+	UCheckPointComponent* ChooseRandomCheckpoint();
 	bool IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor);
 	bool RouteIsCoherente(ARouteStraight* Neighbor, ARouteStraight* NewActor, int direction);
+
+	UGraphManager* GraphManager;
 };

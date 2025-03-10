@@ -135,13 +135,9 @@ void AHospitalGameModeBase::BeginPlay()
         }
     }
 
-    //Set up le graph de connections
-    UGraphManager* GraphManager = GetWorld()->GetSubsystem<UGraphManager>();
+    SetupGraph();
 
-    GraphManager->SetupGraph();
 
-    //Affichage des connections
-    GraphManager->DrawGraphConnections();
 }
 
 bool AHospitalGameModeBase::IsPlacementValid(const TArray<TArray<ARouteStraight*>>& Grid, int x, int y, ARouteStraight* NewActor)
@@ -200,7 +196,34 @@ void AHospitalGameModeBase::RotateRoute(ARouteStraight* Actor)
     Actor->SetActorEnableCollision(true);
 }
 
-void SetupGraphe()
+void AHospitalGameModeBase::SetupGraph()
 {
-    
+    if (!GraphManager)
+    {
+        GraphManager = GetWorld()->GetSubsystem<UGraphManager>();
+    }
+
+    GraphManager->SetupGraph();
+
+    //Affichage des connections
+    GraphManager->DrawGraphConnections();
+
+    for (int i = 0; i < NB_Patient; ++i)
+    {
+        ComponentsTarget.Add(ChooseRandomCheckpoint());
+    }
+}
+
+UCheckPointComponent* AHospitalGameModeBase::ChooseRandomCheckpoint()
+{
+    if (GraphManager)
+    {
+        UCheckPointComponent* RandomCheckPoint = GraphManager->GetRandomCheckpoint();
+        if (RandomCheckPoint)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Selected CheckPoint: %s"), *RandomCheckPoint->GetComponentLocation().ToString());
+            return RandomCheckPoint;
+        }
+    }
+    return nullptr;
 }

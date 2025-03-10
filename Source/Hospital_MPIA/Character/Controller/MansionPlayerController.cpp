@@ -85,6 +85,10 @@ void AMansionPlayerController::Turn(const FInputActionValue& Value)
     AMansionCharacter* MansionCharacter = Cast<AMansionCharacter>(ControlledPawn);
     if (MansionCharacter)
     {
+        if (MansionCharacter->HospitalDataAsset->ShowLog)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("TurnValue for Player Character Controller: %.6f"), TurnValue);
+        }
         MansionCharacter->Turn(TurnValue);
     }
     else

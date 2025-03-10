@@ -17,6 +17,9 @@ public:
 	UHospitalDataAsset* HospitalDataAsset;
 	
 public:
+
+	bool IsMoving = false;
+
 	// Sets default values for this character's properties
 	AMansionCharacter();
 
@@ -36,5 +39,4 @@ public:
 
 	void Move(FVector ForwardDirection, float Movement);
 	void Turn(float TurnValue);
-
 };

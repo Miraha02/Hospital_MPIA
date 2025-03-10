@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "MansionAIController.h"
@@ -31,6 +31,13 @@ void AMansionAIController::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Hospital Data Asset not defined in Character's Blueprint !"));
 	}
 
+	GameMode = GetWorld()->GetAuthGameMode<AHospitalGameModeBase>();
+	if (!GameMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Error when getting GameMode"));
+		return;
+	}
+
 	TargetReached = false;
 
 	/*
@@ -40,9 +47,8 @@ void AMansionAIController::BeginPlay()
 
 	Nearest = GraphManager->GetNearestCheckpoint(GetPawn()->GetActorLocation());
 
-	ChooseRandomCheckpoint();
 
-	Path = GraphManager->FindPath(Nearest, Target);
+	SelectNearestTarget();
 
 	if (Path.Num() <= 0)
 	{
@@ -95,15 +101,42 @@ void AMansionAIController::Tick(float DeltaTime)
 		{
 			Steer = Steering.Seek(MansionCharacter, PathNode->GetComponentLocation());
 		}
-
-		if (MansionCharacter->HospitalDataAsset->ShowLog)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %s"),*Target->GetComponentLocation().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("ActorLocation : %s"),*MansionCharacter->GetActorLocation().ToString());
-			UE_LOG(LogTemp, Warning, TEXT("Steer : %s"),*Steer.ToString());
-		}
 		
-		MansionCharacter->Move(Steer, 1);
+		
+
+		// Normalisation de la direction (assure que la longueur reste 1)
+		FVector Direction = FVector(Steer.X, Steer.Y, 0.0f).GetSafeNormal();
+
+		if (!Direction.IsNearlyZero())
+		{
+			// Utiliser la direction du Steering pour avancer
+			MansionCharacter->Move(Direction, 1);
+
+			float CurrentYaw = MansionCharacter->GetActorRotation().Yaw;
+			float DesiredYaw = Direction.Rotation().Yaw;
+
+			// Trouver l'angle optimal de rotation
+			float TurnValue = FMath::FindDeltaAngleDegrees(CurrentYaw, DesiredYaw);
+
+			// Appliquer le TurningFactor pour limiter la vitesse de rotation
+			float RotationStep = FMath::Clamp(TurnValue * MansionCharacter->HospitalDataAsset->TurningFactor, -5.0f, 5.0f);
+
+			FRotator NewRotation = MansionCharacter->GetActorRotation();
+			NewRotation.Yaw += RotationStep;
+			MansionCharacter->SetActorRotation(NewRotation);
+
+			if (MansionCharacter->HospitalDataAsset->ShowLog)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("TargetLocation : %s"), *Target->GetComponentLocation().ToString());
+				UE_LOG(LogTemp, Warning, TEXT("ActorLocation : %s"), *MansionCharacter->GetActorLocation().ToString());
+				UE_LOG(LogTemp, Warning, TEXT("Steer : %s"), *Steer.ToString());
+				UE_LOG(LogTemp, Warning, TEXT("Direction : %s"), *Direction.ToString());
+				UE_LOG(LogTemp, Warning, TEXT("TurnValue : %.6f"), TurnValue);
+				UE_LOG(LogTemp, Warning, TEXT("RotationStep : %.6f"), RotationStep);
+			}
+		}
+
+
 	}
 	else
 	{
@@ -111,15 +144,26 @@ void AMansionAIController::Tick(float DeltaTime)
 	}
 }
 
-void AMansionAIController::ChooseRandomCheckpoint()
+void AMansionAIController::SelectNearestTarget()
 {
-	if (GraphManager)
+	int minSize = INT_MAX;
+
+	for (int i = 0; i < GameMode->NB_Patient; ++i)
 	{
-		UCheckPointComponent* RandomCheckPoint = GraphManager->GetRandomCheckpoint();
-		if (RandomCheckPoint)
+		TArray<UCheckPointComponent*> PathTmp = GraphManager->FindPath(Nearest, GameMode->ComponentsTarget[i]);
+		
+		int size = PathTmp.Num();
+		if (size == 0)
 		{
-			Target = RandomCheckPoint;
-			UE_LOG(LogTemp, Warning, TEXT("Selected CheckPoint: %s"), *Target->GetComponentLocation().ToString());
+			UE_LOG(LogTemp, Error, TEXT("Path is empty in SelectNearestTarget Function !"));
+			return;
+		}
+
+		if (size < minSize)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Shortest Target Find !"));
+			Path = PathTmp;
+			Target = GameMode->ComponentsTarget[i];
 		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Hospital_MPIA/GraphManager.h"
+#include <Hospital_MPIA/HospitalGameModeBase.h>
 #include "MansionAIController.generated.h"
 
 /**
@@ -22,6 +23,8 @@ private:
 	TArray<UCheckPointComponent*> Path;
 	int index = 0;
 
+	AHospitalGameModeBase* GameMode;
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly ,Category = "Target")
@@ -34,6 +37,7 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	void SelectNearestTarget();
 	void ChooseRandomCheckpoint();
 
 public:
