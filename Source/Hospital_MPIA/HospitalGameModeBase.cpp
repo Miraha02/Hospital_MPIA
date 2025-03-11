@@ -222,6 +222,7 @@ UCheckPointComponent* AHospitalGameModeBase::ChooseRandomCheckpoint()
         if (RandomCheckPoint)
         {
             UE_LOG(LogTemp, Warning, TEXT("Selected CheckPoint: %s"), *RandomCheckPoint->GetComponentLocation().ToString());
+            RandomCheckPoint->PutVictim();
             return RandomCheckPoint;
         }
     }

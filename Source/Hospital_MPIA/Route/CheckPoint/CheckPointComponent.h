@@ -32,4 +32,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void DetectNeighbors();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool HasBody = false;
+
+	UFUNCTION(BlueprintCallable)
+	void PutVictim();
+
+	UFUNCTION(BlueprintCallable)
+	void TakeOffVictim();
 };

@@ -23,6 +23,8 @@ void UCheckPointComponent::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCheckPointComponent::DetectNeighbors, 0.1f, false);
 	*/
+
+	SetVisibility(false);
 }
 
 
@@ -62,6 +64,18 @@ void UCheckPointComponent::DetectNeighbors()
 			}
 		}
 	}
+}
+
+void UCheckPointComponent::PutVictim()
+{
+	HasBody = true;
+	SetVisibility(true);
+}
+
+void UCheckPointComponent::TakeOffVictim()
+{
+	HasBody = false;
+	SetVisibility(false);
 }
 
 // Ajouter une connexion entre deux CheckPoints
