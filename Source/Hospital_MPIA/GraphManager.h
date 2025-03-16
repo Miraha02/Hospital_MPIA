@@ -35,6 +35,7 @@ public:
 
     void SetupGraph();
 
+    UFUNCTION(BlueprintCallable)
     TArray<UCheckPointComponent*> FindPath(UCheckPointComponent* Start, UCheckPointComponent* Goal);
     UCheckPointComponent* GetNearestCheckpoint(FVector Location);
     UCheckPointComponent* GetRandomCheckpoint();

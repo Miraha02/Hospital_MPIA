@@ -206,7 +206,7 @@ void UGraphManager::DrawGraphConnections()
 						EndLocation,
 						FColor::Blue,
 						false,  // Persiste seulement temporairement
-						15.0f,   // Durée d'affichage
+						600.0f,   // Durée d'affichage
 						0,      // Aucun canal de profondeur
 						5.f     // Épaisseur de la ligne
 					);

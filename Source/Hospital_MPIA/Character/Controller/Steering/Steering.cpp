@@ -1,11 +1,13 @@
 ﻿#include "Steering.h"
 
 #include "Chaos/PBDSuspensionConstraintData.h"
+#include "Kismet/GameplayStatics.h"
 
 
 FVector Steering::Seek(const AMansionCharacter* Character, FVector TargetLocation)
 {
 	FVector ActorLocation = Character->GetActorLocation();
+	
 	FVector desired_velocity = TargetLocation - ActorLocation;
 
 	FVector Velocity = Character->GetVelocity();
@@ -17,6 +19,7 @@ FVector Steering::Seek(const AMansionCharacter* Character, FVector TargetLocatio
 		return FVector::ZeroVector;
 	}
 	desired_velocity = desired_velocity.GetSafeNormal() * HospitalDataAsset->Speed;
+    
 	FVector steering = desired_velocity - Velocity;
 
 	return steering;
@@ -60,4 +63,35 @@ FVector Steering::Arrival(const AMansionCharacter* Character, AMansionAIControll
 	}
 
 	return steering;
+}
+
+FVector Steering::AvoidCollisions(const AMansionCharacter* Character)
+{
+	FVector AvoidanceForce = FVector::ZeroVector;
+	UWorld* World = Character->GetWorld();
+	if (!World) return AvoidanceForce;
+
+	float DetectionRadius = 500.0f; // Distance pour détecter les autres personnages
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(World, AMansionCharacter::StaticClass(), FoundActors);
+
+	for (AActor* Actor : FoundActors)
+	{
+		AMansionCharacter* OtherCharacter = Cast<AMansionCharacter>(Actor);
+		if (!OtherCharacter || OtherCharacter == Character) continue;
+
+		FVector OtherLocation = OtherCharacter->GetActorLocation();
+		float Distance = FVector::Dist(Character->GetActorLocation(), OtherLocation);
+
+		if (Distance < DetectionRadius)
+		{
+			// Force de séparation : s'éloigner de l'autre personnage
+			FVector AwayVector = Character->GetActorLocation() - OtherLocation;
+			AwayVector.Normalize();
+			AwayVector *= (DetectionRadius - Distance); // Plus proche = plus forte force
+			AvoidanceForce += AwayVector;
+		}
+	}
+
+	return AvoidanceForce;
 }

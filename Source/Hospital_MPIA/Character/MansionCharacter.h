@@ -23,6 +23,9 @@ public:
 	// Sets default values for this character's properties
 	AMansionCharacter();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Patient")
+	bool HasPatient = false;
+
 protected:
 
 	// Called when the game starts or when spawned

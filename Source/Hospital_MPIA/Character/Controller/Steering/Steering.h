@@ -14,5 +14,5 @@ public:
 	FVector Seek(const AMansionCharacter* Character, FVector TargetLocation);
 
 	FVector Arrival(const AMansionCharacter* Character, AMansionAIController* AIController, FVector TargetLocation);
-	
+	FVector AvoidCollisions(const AMansionCharacter* Character);
 };

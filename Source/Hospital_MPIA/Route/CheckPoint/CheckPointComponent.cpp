@@ -34,10 +34,10 @@ void UCheckPointComponent::DetectNeighbors()
 
 	TArray<FHitResult> HitResults;
 	FVector Center = GetComponentLocation();
-	float DetectionRadius = 150.f; // Augmenté pour s'assurer qu'on capte bien les voisins
+	float DetectionRadius = 250.f; // Augmenté pour s'assurer qu'on capte bien les voisins
 
 	// Debug : Voir la sphère en jeu
-	DrawDebugSphere(GetWorld(), Center, DetectionRadius, 12, FColor::Green, false, 25.f);
+	//DrawDebugSphere(GetWorld(), Center, DetectionRadius, 12, FColor::Green, false, 25.f);
 
 	FCollisionShape Sphere = FCollisionShape::MakeSphere(DetectionRadius);
     
@@ -81,7 +81,7 @@ void UCheckPointComponent::TakeOffVictim()
 // Ajouter une connexion entre deux CheckPoints
 void UCheckPointComponent::ConnectTo(UCheckPointComponent* OtherCheckPoint)
 {
-	if (OtherCheckPoint && OtherCheckPoint != this && !ConnectedCheckPoints.Contains(OtherCheckPoint))
+	if (OtherCheckPoint && OtherCheckPoint != this && !IsConnectedTo(OtherCheckPoint))
 	{
 		ConnectedCheckPoints.Add(OtherCheckPoint);
 		OtherCheckPoint->ConnectedCheckPoints.Add(this); // Connexion bidirectionnelle
